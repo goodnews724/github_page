@@ -41,7 +41,7 @@ const DEFAULTS = {
 };
 
 const state = {
-  tab: "overview",
+  tab: "inventory",
   metadata: null,
   inventory: null,
   analytics: null,
@@ -62,7 +62,6 @@ const refs = {
   heroStats: document.getElementById("hero-stats"),
   tabbar: document.getElementById("tabbar"),
   panels: {
-    overview: document.getElementById("panel-overview"),
     inventory: document.getElementById("panel-inventory"),
     analytics: document.getElementById("panel-analytics"),
     ops: document.getElementById("panel-ops"),
@@ -103,9 +102,7 @@ function render() {
     panel.hidden = name !== state.tab;
   });
 
-  if (state.tab === "overview") {
-    renderOverviewPanel();
-  } else if (state.tab === "inventory") {
+  if (state.tab === "inventory") {
     renderInventoryPanel();
   } else if (state.tab === "analytics") {
     if (!state.analytics && !state.analyticsLoading) {
@@ -128,7 +125,7 @@ async function loadAnalytics() {
     state.analyticsUi = createAnalyticsUiState();
     normalizeAnalyticsUi();
   } catch (error) {
-    refs.panels.analytics.innerHTML = renderErrorCard("Analytics 데이터를 불러오지 못했습니다.", error.message);
+    refs.panels.analytics.innerHTML = renderErrorCard("분석 데이터를 불러오지 못했습니다.", error.message);
   } finally {
     state.analyticsLoading = false;
     if (state.tab === "analytics") {
@@ -147,23 +144,23 @@ function renderHero() {
 
   refs.heroStats.innerHTML = [
     {
-      label: "Inventory Rows",
+      label: "재고 항목 수",
       value: formatNumber(inventoryCounts.rows ?? 0),
       meta: `재고 ${formatNumber(inventoryCounts.rows ?? 0)}건 · 브랜드 ${formatNumber(inventoryCounts.brands ?? 0)}개`,
     },
     {
-      label: "Quarantine Records",
+      label: "검역량 레코드",
       value: formatNumber(analytics.quarantine?.rows ?? 0),
       meta: `국가 ${formatNumber(analytics.quarantine?.countries ?? 0)}개 · 축종 2개`,
     },
     {
-      label: "USDA Daily Series",
+      label: "USDA 일일 시계열",
       value: formatNumber(analytics.usda?.rows ?? 0),
       meta: `카테고리 ${formatNumber(analytics.usda?.groups ?? 0)}개`,
     },
     {
-      label: "Snapshot Updated",
-      value: escapeHtml(state.metadata.inventory?.updatedAt ?? "n/a"),
+      label: "스냅샷 기준시각",
+      value: escapeHtml(state.metadata.inventory?.updatedAt ?? "-"),
       meta: `정적 스냅샷 생성 ${escapeHtml(generated)}`,
     },
   ]
@@ -184,121 +181,6 @@ function renderTabs() {
   buttons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tab === state.tab);
   });
-}
-
-function renderOverviewPanel() {
-  const meta = state.metadata;
-  const generated = formatDateTime(meta.generatedAt);
-  refs.panels.overview.innerHTML = `
-    <div class="grid overview-grid">
-      <section class="stack">
-        <article class="card">
-          <div class="section-header">
-            <div>
-              <span class="kicker">Live Snapshot</span>
-              <h2>Streamlit에서 쓰던 핵심 기능을 Pages 워크스페이스로 재조립했습니다.</h2>
-              <p>
-                서버 사이드 Python은 Google Sheets를 정적 JSON으로 스냅샷하고,
-                화면은 브라우저에서 검색, 비교, 집계, 차트 렌더링을 바로 수행합니다.
-              </p>
-            </div>
-          </div>
-          <div class="metric-grid">
-            <article class="metric-card">
-              <h3>Inventory</h3>
-              <div class="metric-card__value">${formatNumber(meta.inventory?.counts?.rows ?? 0)}</div>
-              <p>실시간 조회 대신 최신 스냅샷을 빠르게 탐색합니다.</p>
-            </article>
-            <article class="metric-card">
-              <h3>Quarantine</h3>
-              <div class="metric-card__value">${formatNumber(meta.analytics?.quarantine?.rows ?? 0)}</div>
-              <p>돈육·우육 검역량 장기 이력을 국가와 품목 단위로 비교합니다.</p>
-            </article>
-            <article class="metric-card">
-              <h3>USDA</h3>
-              <div class="metric-card__value">${formatNumber(meta.analytics?.usda?.rows ?? 0)}</div>
-              <p>일일 시계열을 월평균, 분기, 반기 기준으로 재조합합니다.</p>
-            </article>
-            <article class="metric-card">
-              <h3>Snapshot</h3>
-              <div class="metric-card__value">${escapeHtml(meta.inventory?.updatedAt ?? "n/a")}</div>
-              <p>Pages 빌드 시점 기준 데이터 스냅샷입니다.</p>
-            </article>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="section-header">
-            <div>
-              <span class="kicker">Modules</span>
-              <h3>운영 흐름 기준으로 화면을 나눴습니다.</h3>
-            </div>
-          </div>
-          <div class="module-grid">
-            <article class="module-card">
-              <h3>Inventory Studio</h3>
-              <p>검색어 문법, 창고/브랜드 필터, 재고만 보기, 상세 패널, 관리코드 복사까지 포함합니다.</p>
-              <button class="button button--primary" type="button" data-action="set-tab" data-tab="inventory">열기</button>
-            </article>
-            <article class="module-card">
-              <h3>Market Atlas</h3>
-              <p>연도별 월별 비교와 추이 그래프를 모두 지원하고, 이중축 비교도 가능합니다.</p>
-              <button class="button button--secondary" type="button" data-action="set-tab" data-tab="analytics">열기</button>
-            </article>
-            <article class="module-card">
-              <h3>Data Ops</h3>
-              <p>스냅샷 재생성 명령, 소스 설명, 배포 루틴을 같이 둬서 운영 전환이 쉽습니다.</p>
-              <button class="button button--ghost" type="button" data-action="set-tab" data-tab="ops">열기</button>
-            </article>
-          </div>
-        </article>
-      </section>
-
-      <section class="stack">
-        <article class="card">
-          <div class="section-header">
-            <div>
-              <span class="kicker">Architecture</span>
-              <h3>GitHub Pages 제약을 우회한 구조</h3>
-            </div>
-          </div>
-          <div class="source-list">
-            <div class="source-item">
-              <strong>1. Google Sheets Snapshot</strong>
-              <span>서비스 계정으로 비공개 시트를 읽고 정적 JSON으로 변환합니다.</span>
-            </div>
-            <div class="source-item">
-              <strong>2. Client-Side Analytics</strong>
-              <span>브라우저에서 필터, 검색, 집계, Plotly 차트 생성을 처리합니다.</span>
-            </div>
-            <div class="source-item">
-              <strong>3. Static Deployment</strong>
-              <span>별도 서버 없이 ${escapeHtml(generated)} 기준 스냅샷을 GitHub Pages로 배포합니다.</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="section-header">
-            <div>
-              <span class="kicker">Notes</span>
-              <h3>현재 전환에서 유지한 기준</h3>
-            </div>
-          </div>
-          <div class="tag-row">
-            <span class="tag">검색 문법 유지</span>
-            <span class="tag">이중축 차트 유지</span>
-            <span class="tag">월·분기·반기 집계 유지</span>
-            <span class="tag">정적 배포 대응</span>
-          </div>
-          <p class="list-note" style="margin-top: 16px;">
-            브라우저에서 비밀키를 직접 사용할 수 없기 때문에, 데이터는 스냅샷 방식으로 공급됩니다.
-            따라서 “현재 시점”이 아니라 “가장 최근 export 시점” 기준입니다.
-          </p>
-        </article>
-      </section>
-    </div>
-  `;
 }
 
 function renderInventoryPanel() {
@@ -325,11 +207,11 @@ function renderInventoryPanel() {
   refs.panels.inventory.innerHTML = `
     <div class="section-header">
       <div>
-        <span class="kicker">Inventory Studio</span>
+        <span class="kicker">재고 검색</span>
         <h2>재고 검색과 상세 확인을 한 화면에서 처리합니다.</h2>
         <p>검색 문법: 공백은 AND, 쉼표는 OR, <code>!단어</code>는 제외입니다.</p>
       </div>
-      <div class="kicker"><strong>최신</strong> ${escapeHtml(inventory.updatedAt ?? "n/a")}</div>
+      <div class="kicker"><strong>최신</strong> ${escapeHtml(inventory.updatedAt ?? "-")}</div>
     </div>
 
     <div class="inventory-shell">
@@ -547,7 +429,7 @@ function renderAnalyticsPanel() {
     return;
   }
   if (!state.analytics || !state.analyticsUi) {
-    panel.innerHTML = renderErrorCard("Analytics 데이터를 아직 준비하지 못했습니다.", "잠시 후 다시 시도하세요.");
+    panel.innerHTML = renderErrorCard("분석 데이터를 아직 준비하지 못했습니다.", "잠시 후 다시 시도하세요.");
     return;
   }
 
@@ -556,7 +438,7 @@ function renderAnalyticsPanel() {
       <section class="chart-card">
         <div class="section-header">
           <div>
-            <span class="kicker">Monthly Comparison</span>
+            <span class="kicker">월별 비교</span>
             <h2>연도별 월별 비교</h2>
             <p>검역량, USDA, 국가별 축산 지표를 연도와 항목 조합으로 비교합니다.</p>
           </div>
@@ -579,8 +461,8 @@ function renderAnalyticsPanel() {
             `
             : `
               <div class="analytics-grid analytics-grid--dual">
-                <div class="control-grid">${renderMonthlySingleControls("left", "좌축 · Inventory/Quarantine 측", "analyticsUi.monthly.left")}</div>
-                <div class="control-grid">${renderMonthlySingleControls("right", "우축 · USDA/Livestock 측", "analyticsUi.monthly.right")}</div>
+                <div class="control-grid">${renderMonthlySingleControls("left", "좌측 비교 데이터", "analyticsUi.monthly.left")}</div>
+                <div class="control-grid">${renderMonthlySingleControls("right", "우측 비교 데이터", "analyticsUi.monthly.right")}</div>
               </div>
               <div style="margin-top: 16px;">
                 <div class="chart-stage" id="monthly-chart-stage"><div id="monthly-chart"></div></div>
@@ -593,7 +475,7 @@ function renderAnalyticsPanel() {
       <section class="chart-card">
         <div class="section-header">
           <div>
-            <span class="kicker">Trend Engine</span>
+            <span class="kicker">추이 분석</span>
             <h2>추이 그래프</h2>
             <p>최근 3개월, 1년, 5년 또는 직접 설정 기간으로 집계 추이를 비교합니다.</p>
           </div>
@@ -700,7 +582,7 @@ function renderOpsPanel() {
   refs.panels.ops.innerHTML = `
     <div class="section-header">
       <div>
-        <span class="kicker">Data Ops</span>
+        <span class="kicker">데이터 운영</span>
         <h2>정적 데이터 스냅샷 운영 절차</h2>
         <p>이 페이지는 export 스크립트로 Google Sheets를 JSON으로 고정한 뒤 GitHub Pages로 배포합니다.</p>
       </div>
@@ -709,12 +591,12 @@ function renderOpsPanel() {
 
     <div class="ops-grid">
       <section class="ops-card">
-        <h3>Refresh Snapshot</h3>
+        <h3>스냅샷 갱신</h3>
         <p>시트 최신값을 다시 끌어와 정적 JSON을 갱신할 때 사용하는 명령입니다.</p>
         <div class="command-block">${escapeHtml(exportCommand)}</div>
         <div class="action-row" style="margin-top: 14px;">
           <button class="button button--primary" type="button" data-action="copy-text" data-text="${encodeURIComponent(exportCommand)}">명령 복사</button>
-          <button class="button button--tertiary" type="button" data-action="set-tab" data-tab="analytics">Analytics 열기</button>
+          <button class="button button--tertiary" type="button" data-action="set-tab" data-tab="analytics">시장 분석 열기</button>
         </div>
         <div class="command-block" style="margin-top: 16px;">cd /home/goodnews/바탕화면/ZM_DX_PROJECTS/03_깃헙_페이지
 git add .
@@ -723,7 +605,7 @@ git push</div>
       </section>
 
       <section class="ops-card">
-        <h3>Source Inventory</h3>
+        <h3>데이터 원천</h3>
         <div class="source-list">
           <div class="source-item">
             <strong>검색창_관리부 / 데이터</strong>
@@ -880,7 +762,7 @@ function renderMonthlySingleControls(side, title, path) {
     <div class="card">
       <div class="section-header">
         <div>
-          <span class="kicker">${side === "left" ? "Left Axis" : "Right Axis"}</span>
+          <span class="kicker">${side === "left" ? "좌측 축" : "우측 축"}</span>
           <h3>${escapeHtml(title)}</h3>
         </div>
       </div>
@@ -957,7 +839,7 @@ function renderTrendControls(side, title, path) {
     <div class="card">
       <div class="section-header">
         <div>
-          <span class="kicker">${side === "left" ? "Left Axis" : "Right Axis"}</span>
+          <span class="kicker">${side === "left" ? "좌측 축" : "우측 축"}</span>
           <h3>${escapeHtml(title)}</h3>
         </div>
       </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Livestock Intelligence Hub</title>
+  <title>축산 데이터 통합 허브</title>
   <meta
     name="description"
     content="재고 검색, 검역량 비교, USDA 일일 데이터, 국가별 축산 지표를 GitHub Pages에서 운영하는 정적 분석 허브"
@@ -25,21 +25,24 @@
 
     <header class="hero">
       <div class="hero__copy">
-        <p class="eyebrow">Streamlit to GitHub Pages</p>
-        <h1>Livestock Intelligence Hub</h1>
+        <p class="eyebrow">스트림릿 포팅 버전</p>
+        <h1>축산 데이터 통합 허브</h1>
         <p class="hero__lead">
           재고 검색, 검역량 비교, 미국 내수가격, 국가별 축산 지표를
           GitHub Pages 한 화면에서 바로 다룰 수 있게 재구성한 운영용 정적 워크스페이스입니다.
         </p>
         <div class="hero__actions">
           <button class="button button--primary" type="button" data-action="set-tab" data-tab="inventory">
-            Inventory Studio
+            재고 검색
           </button>
           <button class="button button--secondary" type="button" data-action="set-tab" data-tab="analytics">
-            Market Atlas
+            시장 분석
+          </button>
+          <button class="button button--ghost" type="button" data-action="set-tab" data-tab="ops">
+            데이터 운영
           </button>
           <a class="button button--ghost" href="https://github.com/goodnews724/github_page" target="_blank" rel="noreferrer">
-            Repository
+            깃허브 저장소
           </a>
         </div>
       </div>
@@ -52,15 +55,13 @@
     </header>
 
     <nav class="tabbar" id="tabbar" aria-label="주요 기능">
-      <button class="tabbar__button is-active" type="button" data-action="set-tab" data-tab="overview">Overview</button>
-      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="inventory">Inventory</button>
-      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="analytics">Analytics</button>
-      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="ops">Data Ops</button>
+      <button class="tabbar__button is-active" type="button" data-action="set-tab" data-tab="inventory">재고 검색</button>
+      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="analytics">시장 분석</button>
+      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="ops">데이터 운영</button>
     </nav>
 
     <main class="workspace">
-      <section class="panel" id="panel-overview"></section>
-      <section class="panel" id="panel-inventory" hidden></section>
+      <section class="panel" id="panel-inventory"></section>
       <section class="panel" id="panel-analytics" hidden></section>
       <section class="panel" id="panel-ops" hidden></section>
     </main>
