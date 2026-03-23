@@ -39,6 +39,46 @@ const DEFAULTS = {
   monthly: { species: "우육", country: "미국", item: "갈비" },
   trend: { species: "우육", country: "미국", item: "갈비" },
 };
+const USDA_LABELS = {
+  "도축두수": "도축두수",
+  "돈육 프라이멀": "돈육 프라이멀",
+  "1/4 Trim Butt": "트림 버트(1/4)",
+  "소고기 Choice": "소고기 초이스",
+  "소고기 세부": "소고기 세부",
+  "Cattle 도축두수": "소 도축두수",
+  "Calves 도축두수": "송아지 도축두수",
+  "Hogs 도축두수": "돼지 도축두수",
+  "Sheep 도축두수": "양 도축두수",
+  "돈육 carcass": "돈육 도체",
+  "돈육 loin": "돈육 로인",
+  "돈육 butt": "돈육 버트",
+  "돈육 picnic": "돈육 피크닉",
+  "돈육 rib": "돈육 갈비",
+  "돈육 ham": "돈육 햄",
+  "돈육 belly": "돈육 삼겹",
+  "FRESH butt": "냉장 버트",
+  "FROZEN butt": "냉동 버트",
+  "O/D": "오프데이",
+  "소 carcass": "소 도체",
+  "소 rib (65~75CL)": "소 갈비 (65~75CL)",
+  "소 chuck (75~85CL)": "소 척 (75~85CL)",
+  "소 round (90~95CL)": "소 라운드 (90~95CL)",
+  "소 loin (85~90CL)": "소 로인 (85~90CL)",
+  "소 brisket (70~75CL)": "소 브리스킷 (70~75CL)",
+  "소 short plate (60~65)": "소 숏플레이트 (60~65)",
+  "소 flank (70~75CL)": "소 플랭크 (70~75CL)",
+  "Chuck roll": "척롤",
+  "Shoulder clod": "숄더 클로드",
+  "Top blade": "탑 블레이드",
+  "Chuck flap": "척 플랩",
+  "Brisket deckle off": "브리스킷 덱클 제거",
+  "Brisket point off bnls": "브리스킷 포인트 제거(무뼈)",
+  "Short plate short rib": "숏플레이트 쇼트립",
+  "Chuck short rib": "척 쇼트립",
+  "Ground Beef 93%": "그라운드 비프 93%",
+  "Ground Beef 81%": "그라운드 비프 81%",
+  "Trimming 50% Fresh": "트리밍 50% 냉장",
+};
 
 const state = {
   tab: "inventory",
@@ -661,7 +701,7 @@ function renderMonthlyMultiControls() {
     const mergeable = state.analytics.usda.mergeableGroups.includes(config.usda.group);
     return `
       ${renderSelectField("데이터", "analyticsUi.monthly.primary.source", config.source, sourceOptions)}
-      ${renderSelectField("카테고리", "analyticsUi.monthly.primary.usda.group", config.usda.group, Object.keys(state.analytics.usda.groups))}
+      ${renderSelectField("카테고리", "analyticsUi.monthly.primary.usda.group", config.usda.group, Object.keys(state.analytics.usda.groups).map((group) => ({ value: group, label: getUsdaLabel(group) })))}
       ${renderChecklist({ title: "연도", path: "analyticsUi.monthly.primary.usda.years", options: state.analyticsLookups.usda.years.map(String), selected: config.usda.years, compact: true })}
       ${
         mergeable
@@ -673,7 +713,7 @@ function renderMonthlyMultiControls() {
           `
           : ""
       }
-      ${renderChecklist({ title: "항목", path: "analyticsUi.monthly.primary.usda.items", options: groupItems, selected: config.usda.items })}
+      ${renderChecklist({ title: "항목", path: "analyticsUi.monthly.primary.usda.items", options: groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })), selected: config.usda.items })}
     `;
   }
 
@@ -719,7 +759,7 @@ function renderMonthlySingleControls(side, title, path) {
     const groupItems = state.analytics.usda.groups[config.usda.group] ?? [];
     const mergeable = state.analytics.usda.mergeableGroups.includes(config.usda.group);
     detail = `
-      ${renderSelectField("카테고리", `${path}.usda.group`, config.usda.group, Object.keys(state.analytics.usda.groups))}
+      ${renderSelectField("카테고리", `${path}.usda.group`, config.usda.group, Object.keys(state.analytics.usda.groups).map((group) => ({ value: group, label: getUsdaLabel(group) })))}
       ${renderSelectField("연도", `${path}.usda.year`, config.usda.year, state.analyticsLookups.usda.years.map(String))}
       ${
         mergeable
@@ -728,9 +768,9 @@ function renderMonthlySingleControls(side, title, path) {
               <span><strong>항목 합산</strong><br><span class="field__help">복수 항목을 월 합계로 묶습니다.</span></span>
               <input type="checkbox" data-action="set-bool" data-path="${path}.usda.mergeItems" ${config.usda.mergeItems ? "checked" : ""}>
             </label>
-            ${renderChecklist({ title: "합산 항목", path: `${path}.usda.items`, options: groupItems, selected: config.usda.items, compact: true })}
+            ${renderChecklist({ title: "합산 항목", path: `${path}.usda.items`, options: groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })), selected: config.usda.items, compact: true })}
           `
-          : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems)
+          : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })))
       }
     `;
   } else {
@@ -794,7 +834,7 @@ function renderTrendControls(side, title, path) {
     const groupItems = state.analytics.usda.groups[config.usda.group] ?? [];
     const mergeable = state.analytics.usda.mergeableGroups.includes(config.usda.group);
     detail = `
-      ${renderSelectField("카테고리", `${path}.usda.group`, config.usda.group, Object.keys(state.analytics.usda.groups))}
+      ${renderSelectField("카테고리", `${path}.usda.group`, config.usda.group, Object.keys(state.analytics.usda.groups).map((group) => ({ value: group, label: getUsdaLabel(group) })))}
       ${
         mergeable
           ? `
@@ -804,11 +844,11 @@ function renderTrendControls(side, title, path) {
             </label>
             ${
               config.usda.mergeItems
-                ? renderChecklist({ title: "항목", path: `${path}.usda.items`, options: groupItems, selected: config.usda.items, compact: true })
-                : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems)
+                ? renderChecklist({ title: "항목", path: `${path}.usda.items`, options: groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })), selected: config.usda.items, compact: true })
+                : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })))
             }
           `
-          : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems)
+          : renderSelectField("항목", `${path}.usda.item`, config.usda.item, groupItems.map((item) => ({ value: item, label: getUsdaLabel(item) })))
       }
     `;
   } else {
@@ -1112,12 +1152,12 @@ function buildMonthlyMultiSeries() {
         config.usda.items.forEach((item) => {
           const mode = isUsdaSumItem(item) ? "sum" : "avg";
           const monthly = buildUsdaMonthlySeries(rows, [item], mode, false);
-          series.push({ label: `${item} / ${year}`, y: monthly, year });
+          series.push({ label: `${getUsdaLabel(item)} / ${year}`, y: monthly, year });
         });
       }
     });
     const unit = state.analytics.usda.groupUnits[config.usda.group];
-    return { series, title: unit ? `${config.usda.group} (${unit})` : config.usda.group };
+    return { series, title: unit ? `${getUsdaLabel(config.usda.group)} (${unit})` : getUsdaLabel(config.usda.group) };
   }
 
   const years = config.livestock.years.map(Number).sort((a, b) => a - b);
@@ -1171,16 +1211,16 @@ function buildMonthlySingleSeries(config) {
     const unit = state.analytics.usda.groupUnits[config.usda.group];
     if (config.usda.mergeItems) {
       return {
-        label: `${config.usda.group} 합산 ${config.usda.year}`,
+        label: `${getUsdaLabel(config.usda.group)} 합산 ${config.usda.year}`,
         y: buildUsdaMonthlySeries(rows, config.usda.items, "sum", true),
-        title: unit ? `${config.usda.group} (${unit})` : config.usda.group,
+        title: unit ? `${getUsdaLabel(config.usda.group)} (${unit})` : getUsdaLabel(config.usda.group),
       };
     }
     const mode = isUsdaSumItem(config.usda.item) ? "sum" : "avg";
     return {
-      label: `${config.usda.item} ${config.usda.year}`,
+      label: `${getUsdaLabel(config.usda.item)} ${config.usda.year}`,
       y: buildUsdaMonthlySeries(rows, [config.usda.item], mode, false),
-      title: unit ? `${config.usda.group} (${unit})` : config.usda.group,
+      title: unit ? `${getUsdaLabel(config.usda.group)} (${unit})` : getUsdaLabel(config.usda.group),
     };
   }
 
@@ -1248,8 +1288,8 @@ function buildTrendDataset(config) {
       return {
         source: "usda",
         itemName: "__usda_sum__",
-        title: `${config.usda.group} (${state.analytics.usda.groupUnits[config.usda.group]})`,
-        label: `${config.usda.group} 합산`,
+        title: `${getUsdaLabel(config.usda.group)} (${state.analytics.usda.groupUnits[config.usda.group]})`,
+        label: `${getUsdaLabel(config.usda.group)} 합산`,
         points,
       };
     }
@@ -1259,8 +1299,8 @@ function buildTrendDataset(config) {
     return {
       source: "usda",
       itemName: config.usda.item,
-      title: `${config.usda.group} (${state.analytics.usda.groupUnits[config.usda.group]})`,
-      label: config.usda.item,
+      title: `${getUsdaLabel(config.usda.group)} (${state.analytics.usda.groupUnits[config.usda.group]})`,
+      label: getUsdaLabel(config.usda.item),
       points,
     };
   }
@@ -2148,6 +2188,10 @@ function plotlyConfig() {
     responsive: true,
     displayModeBar: false,
   };
+}
+
+function getUsdaLabel(value) {
+  return USDA_LABELS[value] ?? value;
 }
 
 function formatNumber(value) {
