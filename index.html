@@ -3,54 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>goodnews724 GitHub Pages</title>
+  <title>Livestock Intelligence Hub</title>
   <meta
     name="description"
-    content="goodnews724 계정의 GitHub Pages 프로젝트 사이트입니다."
+    content="재고 검색, 검역량 비교, USDA 일일 데이터, 국가별 축산 지표를 GitHub Pages에서 운영하는 정적 분석 허브"
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
   >
   <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <main class="page">
-    <section class="hero">
-      <p class="eyebrow">GitHub Pages Starter</p>
-      <h1>goodnews724의 첫 프로젝트 페이지</h1>
-      <p class="lead">
-        이 사이트는 <code>github_page</code> 저장소에서 관리되는 정적 페이지입니다.
-        파일을 수정하고 GitHub에 푸시하면 페이지에 바로 반영할 수 있습니다.
-      </p>
-      <div class="actions">
-        <a class="button primary" href="https://github.com/goodnews724/github_page" target="_blank" rel="noreferrer">
-          저장소 보기
-        </a>
-        <a class="button secondary" href="https://goodnews724.github.io/github_page/" target="_blank" rel="noreferrer">
-          페이지 열기
-        </a>
-      </div>
-    </section>
+  <div class="page-shell">
+    <div class="ambient ambient--one"></div>
+    <div class="ambient ambient--two"></div>
 
-    <section class="grid">
-      <article class="card">
-        <h2>관리 방식</h2>
-        <p>
-          이 폴더의 파일을 기준으로 사이트를 관리합니다. 기본 페이지는
-          <code>index.html</code>에서 시작합니다.
+    <header class="hero">
+      <div class="hero__copy">
+        <p class="eyebrow">Streamlit to GitHub Pages</p>
+        <h1>Livestock Intelligence Hub</h1>
+        <p class="hero__lead">
+          재고 검색, 검역량 비교, 미국 내수가격, 국가별 축산 지표를
+          GitHub Pages 한 화면에서 바로 다룰 수 있게 재구성한 운영용 정적 워크스페이스입니다.
         </p>
-      </article>
-      <article class="card">
-        <h2>배포 흐름</h2>
-        <p>
-          로컬에서 수정한 뒤 <code>git add</code>, <code>git commit</code>,
-          <code>git push</code>를 실행하면 GitHub Pages로 배포할 수 있습니다.
-        </p>
-      </article>
-      <article class="card">
-        <h2>다음 작업</h2>
-        <p>
-          소개 문구, 이미지, 링크를 원하는 내용으로 바꾸면 바로 자신만의 프로젝트 페이지가 됩니다.
-        </p>
-      </article>
-    </section>
-  </main>
+        <div class="hero__actions">
+          <button class="button button--primary" type="button" data-action="set-tab" data-tab="inventory">
+            Inventory Studio
+          </button>
+          <button class="button button--secondary" type="button" data-action="set-tab" data-tab="analytics">
+            Market Atlas
+          </button>
+          <a class="button button--ghost" href="https://github.com/goodnews724/github_page" target="_blank" rel="noreferrer">
+            Repository
+          </a>
+        </div>
+      </div>
+      <div class="hero__stats" id="hero-stats">
+        <article class="stat-card skeleton"></article>
+        <article class="stat-card skeleton"></article>
+        <article class="stat-card skeleton"></article>
+        <article class="stat-card skeleton"></article>
+      </div>
+    </header>
+
+    <nav class="tabbar" id="tabbar" aria-label="주요 기능">
+      <button class="tabbar__button is-active" type="button" data-action="set-tab" data-tab="overview">Overview</button>
+      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="inventory">Inventory</button>
+      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="analytics">Analytics</button>
+      <button class="tabbar__button" type="button" data-action="set-tab" data-tab="ops">Data Ops</button>
+    </nav>
+
+    <main class="workspace">
+      <section class="panel" id="panel-overview"></section>
+      <section class="panel" id="panel-inventory" hidden></section>
+      <section class="panel" id="panel-analytics" hidden></section>
+      <section class="panel" id="panel-ops" hidden></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div class="noscript">
+      이 페이지는 재고 검색과 차트 렌더링을 위해 JavaScript가 필요합니다.
+    </div>
+  </noscript>
 </body>
 </html>

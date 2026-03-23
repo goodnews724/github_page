@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-03-23T07:40:10.706375+00:00",
+  "defaults": {
+    "inventory": {
+      "onlyInStock": false
+    },
+    "monthlyComparison": {
+      "species": "우육",
+      "country": "미국",
+      "item": "갈비"
+    },
+    "trend": {
+      "species": "우육",
+      "country": "미국",
+      "item": "갈비"
+    }
+  },
+  "inventory": {
+    "updatedAt": "2026. 3. 23. 오후 04:39:25",
+    "counts": {
+      "rows": 719,
+      "warehouses": 23,
+      "brands": 39
+    }
+  },
+  "analytics": {
+    "quarantine": {
+      "rows": 42598,
+      "species": 2,
+      "countries": 40
+    },
+    "usda": {
+      "rows": 2220,
+      "groups": 5
+    },
+    "livestock": {
+      "rows": 1625,
+      "metrics": 4,
+      "countries": 3
+    }
+  }
+}
